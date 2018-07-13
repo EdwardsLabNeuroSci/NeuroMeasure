@@ -1,0 +1,33 @@
+[System]
+Name='Contrast_FIS_Ver1'
+Type='mamdani'
+Version=2.0
+NumInputs=1
+NumOutputs=1
+NumRules=3
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='PixelValue'
+Range=[0 1]
+NumMFs=3
+MF1='Black':'sigmf',[-10 0.35]
+MF2='Gray':'gauss2mf',[0.1299 0.45 0.1299 0.55]
+MF3='White':'sigmf',[8.99 0.65]
+
+[Output1]
+Name='NewVal'
+Range=[0 1]
+NumMFs=3
+MF1='Darker':'zmf',[0.25 0.4]
+MF2='Grayish':'psigmf',[25.99 0.3 -25.99 0.7]
+MF3='Whiter':'smf',[0.6 0.75]
+
+[Rules]
+1, 1 (1) : 1
+2, 2 (1) : 1
+3, 3 (1) : 1
