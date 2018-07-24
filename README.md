@@ -1,5 +1,3 @@
-# NeuroMeasure
-
 # Main Script: 
 HeadNavUI.m
 
