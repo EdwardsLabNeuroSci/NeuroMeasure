@@ -44,6 +44,10 @@ switch method
         MEPfit = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'thinplateinterp','Normalize','On');
     case 'Lowess'
         MEPfit = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'lowess','Normalize','On');
+    case 'Gaussian'
+        peak = num2str(max(MEP(:,3)));
+        gaussEqn = strcat('(',peak,')*exp(-(((x-c)^2/(2*a^2))+((y-d)^2/(2*b^2))))');
+        MEPfit = fit([MEP(:,1),MEP(:,2)],MEP(:,3),gaussEqn,'Normalize','On');
 end
 
 %Sample the surface using the meshgrid.
