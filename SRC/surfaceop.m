@@ -1,4 +1,7 @@
-function [MEPfit,MEPmap,MEPmask] = surfaceop(MEP,pixelspacing,imlimits,method,thresh)
+function [MEPfit,MEPmap,MEPmask,gof] = surfaceop(MEP,pixelspacing,imlimits,method,thresh)
+
+%Store original MEP data before padding.
+rawdata = MEP;
 
 %Construct meshgrid for sampling the surface fit.
 [U,V] = meshgrid( imlimits(1):pixelspacing:imlimits(2)-pixelspacing, ...
@@ -33,21 +36,27 @@ MEP = cat(1,MEP,[zeropadding(:,2),zeropadding(:,1),zeros(size(zeropadding,1),1)]
 %zeropadded.
 switch method
     case 'Piecewise Cubic'
-        MEPfit = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'cubicinterp','Normalize','On');
+        [MEPfit,gof,~] = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'cubicinterp','Normalize','On');
     case 'Piecewise Linear'
-        MEPfit = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'linearinterp','Normalize','On');
+        [MEPfit,gof,~] = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'linearinterp','Normalize','On');
     case 'Nearest Neighbor'
-        MEPfit = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'nearestinterp','Normalize','On');
+        [MEPfit,gof,~] = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'nearestinterp','Normalize','On');
     case 'Biharmonic (V4)'
-        MEPfit = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'biharmonicinterp','Normalize','On');
+        [MEPfit,gof,~] = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'biharmonicinterp','Normalize','On');
     case 'Thin Plate'
-        MEPfit = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'thinplateinterp','Normalize','On');
+        [MEPfit,gof,~] = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'thinplateinterp','Normalize','On');
     case 'Lowess'
-        MEPfit = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'lowess','Normalize','On');
+        [MEPfit,gof,~] = fit([MEP(:,1),MEP(:,2)],MEP(:,3),'lowess','Normalize','On');
     case 'Gaussian'
-        peak = num2str(max(MEP(:,3)));
-        gaussEqn = strcat('(',peak,')*exp(-(((x-c)^2/(2*a^2))+((y-d)^2/(2*b^2))))');
-        MEPfit = fit([MEP(:,1),MEP(:,2)],MEP(:,3),gaussEqn,'Normalize','On');
+        %peak = num2str(max(MEP(:,3)));
+        %gaussEqn = strcat('(',peak,')*exp(-(((x-c)^2/(2*a^2))+((y-d)^2/(2*b^2))))');
+        
+%         MEP(MEP(:,3) == 0,:) = [];
+%         MEP = cat(1,MEP,[zeropadding(:,2),zeropadding(:,1),zeros(size(zeropadding,1),1)]);
+        xCOG = sum(rawdata(:,1).*rawdata(:,3))/sum(rawdata(:,3));
+        yCOG = sum(rawdata(:,2).*rawdata(:,3))/sum(rawdata(:,3));
+        gaussEqn = 'a*exp(-(((x-d)^2/(2*b^2))+((y-e)^2/(2*c^2))))';
+        [MEPfit,gof,~] = fit([MEP(:,1),MEP(:,2)],MEP(:,3),gaussEqn,'StartPoint',[max(rawdata(:,3)),std(MEP(:,1),MEP(:,3)),std(MEP(:,2),MEP(:,3)),xCOG,yCOG]);
 end
 
 %Sample the surface using the meshgrid.

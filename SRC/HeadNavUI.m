@@ -559,10 +559,11 @@ end
 [handles.ImData,handles.MEPelip,u,v] = createData(handles.Data,handles.Centroid, ...
     handles.imlimits,handles.pixelspacing,handles.theta,handles.xphi,handles.yphi);
 
-[handles.MEPfit,handles.MEPmap,handles.MEPmask] = ...
+[handles.MEPfit,handles.MEPmap,handles.MEPmask,gof] = ...
     surfaceop([u,v,handles.Data(:,4)],handles.pixelspacing,handles.imlimits,handles.SurfaceOp,handles.Threshold);
 handles.MEPmask = handles.alpha*handles.MEPmask;
 
+handles.gof.String = num2str(gof.rsquare);
 curtab.surfmap=handles.MEPmap; %save the mepmap into the tabdata
 
 %Update Measurement Values
